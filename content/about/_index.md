@@ -31,7 +31,7 @@ April 2017-June 2020 Before I was in charge, I was a brand-new analyst at a smal
 
 #### Roanoke Times: Web Editor
 
-May 2016-April 2017 I managed online content posting and social media posting for a regional (60k circulation) newspaper. Provided video content creation for special coverage events. Produced video, print and audio content. $$Some people thought my web design was innovative$$([https://roanoke.com/news/inland-press-association-awards-roanoke-times-for-online-project-on-virginia-tech-shootings/article\_d9274689-2119-506d-8cea-229baecf56a6.html).](https://roanoke.com/news/inland-press-association-awards-roanoke-times-for-online-project-on-virginia-tech-shootings/article_d9274689-2119-506d-8cea-229baecf56a6.html).){.uri}
+May 2016-April 2017 I managed online content posting and social media posting for a regional (60k circulation) newspaper. Provided video content creation for special coverage events. Produced video, print and audio content. [Some people thought my web design was innovative](https://roanoke.com/news/inland-press-association-awards-roanoke-times-for-online-project-on-virginia-tech-shootings/article_d9274689-2119-506d-8cea-229baecf56a6.html).
 
 #### Greensboro News & Record: Staff Writer
 
