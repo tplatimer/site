@@ -97,9 +97,9 @@ canonifyURLs = true
   [params.intro.pic]
     src       = "/img/main/header.jpeg"
     # Sets Image to be a cirlce
-    circle    = true
+    circle    = false
     # Sets Image to be Future Imperfect's hexagon
-    imperfect = false
+    imperfect = true
     width     = ""
     alt       = "Virginia"
 
