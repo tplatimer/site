@@ -1,6 +1,6 @@
 baseurl = "/"
 languageCode = "en-us"
-title = "dataish"
+title = "tplatdata"
 theme = "hugo-future-imperfect"
 preserveTaxonomyNames = true
 paginate = 3
@@ -15,7 +15,7 @@ canonifyURLs = true
   # Sets the meta tag description
   description          = "Data science and storytelling. Powered by Hugo"
   # Sets the navbarTitle that appears in the top left of the navigation bar
-  navbarTitle          = "dataish"
+  navbarTitle          = "tplatdaata"
   # Sets where "View More Posts" links
   viewMorePostLink     = "/blog/"
 
@@ -87,7 +87,7 @@ canonifyURLs = true
   # These are optional params related to the sidebar. They are recommended, but not
   # required for proper functionality. HTML is supported within the params.
 [params.intro]
-  header    = "dataish - bumbling around with data"
+  header    = "tplatdata - bumbling around with data"
 
   paragraph = "Occasionally helpful, sometimes insightful data analysis and stories. Powered by R."
 
@@ -97,9 +97,9 @@ canonifyURLs = true
   [params.intro.pic]
     src       = "/img/main/header.jpeg"
     # Sets Image to be a cirlce
-    circle    = true
+    circle    = false
     # Sets Image to be Future Imperfect's hexagon
-    imperfect = false
+    imperfect = true
     width     = ""
     alt       = "Virginia"
 
