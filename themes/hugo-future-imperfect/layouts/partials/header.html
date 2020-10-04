@@ -16,6 +16,7 @@
                 <title>{{ .Site.Title }}</title>
             {{ end }}
         {{ end }}
+        {{ if .Site.Params.gtm_id}}{{- partial "gtm.html" . }}{{ end }}
 
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
