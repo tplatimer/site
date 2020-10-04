@@ -1,0 +1,408 @@
+---
+title: 'Wordy Hallows: how language changes in Harry Potter'
+author: Powell Latimer
+date: '2020-10-04'
+slug: wordy-hallows-how-language-changes-in-harry-potter
+categories:
+  - R
+tags:
+  - Sentiment analysis
+  - R Markdown
+  - harry potter
+  - textual analysis
+  - anova
+description: ''
+featured: onecol-1.png
+featuredalt: 'graph of sentiment in harry potter'
+featuredpath: ../blog/2020-10-04-wordly-hallows-how-language-changes-in-harry-potter_files/figure-html/
+linktitle: ''
+type: post
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(collapse = TRUE, warning = FALSE, echo = FALSE, message=FALSE)
+```
+
+The other day, around 3:45 p.m., my wife started watching the Harry Potter movies on TV. As soon as the theme song wafted into my ears from the other room, I was done for the day. What am I supposed to do, not watch them?
+
+But it also got me thinking about language, and the Harry Potter series in general. I and much of my generation grew up with Harry, literally - I read the first book when I was 12 and the last when I was 19. I remember getting the 7th book at midnight and pulling an all-nighter to read it before my lifeguarding shift that the next morning. I know J.K. Rowling is busy espousing some Very Bad and Problematic opinions these days. I also realize that the idea of ["Death of the Author"](https://www.youtube.com/watch?v=MGn9x4-Y_7A) is kind of impossible to fully embrace.
+
+But if we can disassemble just part of that for a bit of analysis,
+
+How is it that these books were equally impactful to a 12-year-old and a 19-year old? Those are a big 7 years, with a lot of learning and changing and growing. How did that series grow and change with us? We should find out. We have the tools.
+
+*exploratory analysis music plays*
+
+It's time for some exploratory analysis!
+
+# Let's dive in
+
+Specifically, what we're looking for here is how, if at all, does the text of HP books change between Book 1 and Book 7? Can we measure either a change in *tone* or *complexity*?
+
+The first thing we need to do is load our data. Thankfully, the text of the Harry Potter Series can be found on [archive.org](https://archive.org/details/1HarryPotterAndTheSorcerersStone). I went ahead and downloaded the txt. files.
+
+```{r download_text, message=FALSE, warning=FALSE, echo=FALSE}
+### load libraries
+library(lintr)
+library(tidyverse)
+library(quanteda)
+library(tidytext)
+library(text2vec)
+library(readtext)
+library(textdata)
+library(scales)
+load("~/powells_website/hp_post_data.RData")
+```
+
+### First, complexity
+
+How can we try to assess complexity of a piece of writing? Literary critics and teachers have a lot of thoughts on this exact subject! However, most of that methodology revolves around combing qualitative and quantitative methods as well as expert assessments of the literary texts in question. Unfortunately, we really only have quantitative measures to use here.
+
+Never fear, we are doing exploratory analysis! So let's get in there and try some stuff.
+
+One thing that really informs my process here is my old career as a journalist. Journalism, much like J.K. Rowling, has a lot of problems at the moment -- and in general. However, also much like J.K., journalism is really good at making writing accessible. Two specific rules I think help try to grade complexity in text:
+
+-   The number of words in a paragraph
+
+-   The level of uncertainty in a specific text
+
+Let's take a look at each, along with some simple statistical tools to tell us if we're on the right track.
+
+#### How many words in a paragraph
+
+One rule from journalism is that paragraphs should be around 35 words, 50 is on the high end. There are a lot of reasons for this as a good indicator: readers like white space, and don't like to wade through long, solid blocks of text. Also, longer paragraphs tend to involve more convoluted reasoning or a bunch of complex ideas and clauses. The basic rule of thumb: the more words in a paragraph, the more complex the paragraph.
+
+```{r paragraphs, echo=FALSE}
+library(ggthemes)
+paragraphs %>% 
+  mutate(
+    index = row_number()
+  ) %>% 
+  ggplot(
+    aes(
+      x = doc_id,
+      y = words_in_graph,
+      color = doc_id
+    )
+  )+
+  geom_boxplot()+
+  #geom_point()+
+  scale_color_few()+
+  theme_fivethirtyeight()+
+  theme(axis.text.x = element_blank())+
+  guides(color=FALSE)+
+  labs(
+    x = "Book",
+    y = "Words per Paragraph"
+  )+
+  ggtitle("Words Per Paragraph in the Harry Potter Series")
+library(gt)
+
+```
+
+Just eyeballing the distribution, there seems to be some small differences between the length of the paragraphs, though it's largely in the long tail of outlier paragraphs (that's all the dots outside of the boxes). When we take some summary stats, we see a similar story: the long tail of longer paragraphs is dragging up the average, while the median remains fairly steady.
+
+Let's run a quick-and-dirty analysis of variance to see if these differences really are similar.
+
+What we're going to do here is run an anova (or analysis of variance) to try to see how much real difference there is between these groups, and how much of that difference can be explained by the factor we choose.
+
+We're going to layer into that a Tukey HSD (which stands for Honestly Significant Difference, because John Tukey is awesome). The Tukey HSD gives us visibility to just how difference each LEVEL of the factor is from every other level. So, is book one different from book two? what about book three? And so on and so forth. This is how we're going to take these big, ungainly distributions and sort out the true differences.
+
+```{r word_anova, echo=TRUE}
+library(stats)
+variance <- aov(words_in_graph ~ doc_id, data = paragraphs )
+summary(variance)
+TukeyHSD(variance)
+```
+
+Yeah, the analysis of variance comes back with an itty-bitty p-score, meaning there are some significant differences between the paragraph lengths in different books. A TukeyHSD analysis, likewise, points us to the idea that SOME books are very similar, while others are really different. It seems as though, roughly, books 1-3 are written at one level of complexity, while books 4-7 at a different, higher one.
+
+#### Number of questions
+
+Another rule from Journalism is the Six W's, or the Five W's and how (I just call it Six W's).
+
+The premise here being in order to have a coherent narrative, you should be able to answer the following questions:
+
+-   Who
+
+-   What
+
+-   When
+
+-   Where
+
+-   Why
+
+-   How
+
+The first four are the easy ones: John Dorian robbed the first street bank on Thursday morning.
+
+The last two, well those are the more esoteric and tricky stuff. Why did John Dorian rob that bank? Ad how did he get away? Well..... (Another rule of thumb: if your question elicits a 'well...' as part of the answer, it's probably a hard question)
+
+Basically, questions add complexity. Why and How, specifically, add additional depth and complexity. What if we were to count the ratio of paragraphs with questions, with a special weight to how and why?
+
+```{r why_try}
+whys <- 
+  books %>% 
+  mutate(
+    uncertainty = 
+      case_when(
+        str_detect(line, "\\?") ~ 1,
+        str_detect(line, "why|how") ~ 2,
+        TRUE ~ 0
+      )
+    ) %>% 
+  group_by(
+    doc_id,
+    chapter
+  ) %>% 
+  summarise(
+    all_words =n(),
+    uncertainty = sum(uncertainty)
+  ) %>% 
+  mutate(
+    uncert_index = uncertainty/all_words,
+  )
+whys %>% 
+  ggplot(
+    aes(
+      x = doc_id,
+      y = uncert_index,
+      color = doc_id
+    )
+  )+
+  geom_boxplot()+
+  #geom_point()+
+  scale_color_few()+
+  theme_fivethirtyeight()+
+  theme(axis.text.x = element_blank())+
+  guides(color=FALSE)+
+  scale_y_continuous(labels = percent)+
+  labs(
+    x = "Book",
+    y = "Uncertainty"
+  )+
+  ggtitle("Uncertainty in the Harry Potter Series")
+```
+
+We'll do our same analysis again: an anova analysis with a Tukey HSD. But just from the graph above, we'll probably see a noisier but similar finding: later books are more complex than earlier books.
+
+```{r whys, echo=TRUE}
+why_aov <- aov(uncert_index~doc_id, data=whys)
+summary(why_aov)
+TukeyHSD(why_aov)
+```
+
+And sure enough, later books are more complex. Particularly, Books 4-7 seem to have more layers of complexity than Books 1-3. That's super interesting!
+
+### Complexity Verdict: between 'maybe' and 'probably
+
+By both of our somewhat arbitrary measures, complexity seems to increase at least marginally as the series progresses. The text is definitely more dense, but there are a lot of other analyses that might give us more detailed information.
+
+You could get deeper here in a lot of ways, but in this case, we're just trying to poke around and see what we can see a little bit.
+
+# Sentiment and tone
+
+As we are dealing with weightier stuff, if the language changes, does the tone then also change? not necessarily, as writers like David Sedaris and Douglas Adams can prove.
+
+But how are we supposed to judge 'tone'? Good news, we've got a bunch of lexicons for judging tone and sentiment.
+
+Language processing is tricky. I can write something as sarcasm and you can read it as sarcasm, but computers really have trouble parsing out implicit and explicit meaning. Turns out human communication is a miracle.
+
+But what we do have is a huge range of libraries that classify some words that are almost always explicitly good or bad. We can use those in R as well, specifically through the textdata and tidytext packages.
+
+We'll load the "afinn" lexicon, which is a numeric scale from -5 at the most negative to 5 at the most positive,
+
+```{r load example, eval=FALSE}
+library(tidytext)
+library(textdata)
+sent_afin <- get_sentiments("afinn") # lexicon of values -5 to 5
+```
+
+So what happens when we plug the Harry Potter Books into these metrics and see what we get?
+
+```{r loading, echo = FALSE}
+##### SENTIMENT ANALYSIS ######
+library(tidyverse)
+library(tidytext)
+#install.packages("textdata")
+library(textdata)
+sent_afin <- get_sentiments("afinn")
+sent_nrc <-get_sentiments("nrc")
+df <- 
+  words %>% 
+  ungroup() %>% 
+  mutate(index = row_number())
+sentiment_a <- 
+  inner_join(
+    df, sent_afin, by = "word"
+  )
+
+sentiment_b <-
+  inner_join(
+    df, sent_nrc, by = "word"
+  )
+sentiment_summary_b <-
+  sentiment_b %>% 
+  group_by(
+    doc_id,
+    sentiment
+  ) %>% 
+  summarise(
+    total = n()
+  )
+```
+
+```{r sent_graph, echo=FALSE}
+sentiment_a %>% 
+  group_by(
+    doc_id,
+    chapter
+  ) %>% 
+  summarise(
+    val = sum(value)
+  ) %>% 
+  arrange(val) %>% 
+  ggplot(
+    aes(
+      x = chapter,
+      y = val,
+      fill = doc_id
+    )
+  )+
+  geom_col()+
+  geom_smooth()+
+  facet_grid(.~doc_id, scales = "free_x")+
+  scale_fill_few()+
+  theme_fivethirtyeight()+
+  theme(axis.text.x = element_blank())+
+  labs(x = "Chapter", y =  "Aggregate Sentiment")+
+  ggtitle("Descent into sadness: Sentiment in Harry Potter")+
+  guides(fill=FALSE)
+```
+
+Shew, buddy. Things get DARK in the last half of this series. Tonally, once He-who-must-not-be-named returns, the series gets grim in a hurry. Which, you know, makes sense! Ethno-nationalist, genocidal maniacs taking over is bad! **Stares blankly in 2020**
+
+```{r annotated, echo=FALSE}
+library(ggrepel)
+sentiment_scores <-
+  sentiment_a %>% 
+  group_by(
+    doc_id,
+    chapter
+  ) %>% 
+  summarise(
+    val = sum(value)
+  ) %>% 
+  arrange(val) 
+
+ df_labs <- 
+  tibble(
+    index =c("book15", "book435", "book69", "book628", "book75", "book723"),
+    text = c("diagon alley","barty crouch revealed","slughorn's first class", "dumbledore's death",  "flight from privet drive", "malfoy manor" )
+  )
+label_df <-
+  sentiment_scores %>%
+  ungroup() %>%
+  mutate(
+    index = paste0(doc_id, as.character(chapter))
+  )
+label_df <-
+  merge(label_df, df_labs, by = "index")
+```
+
+```{r annotated_graph, echo=FALSE}
+sentiment_scores %>% 
+  ggplot(
+    aes(
+      x = chapter,
+      y = val,
+      fill = doc_id
+    )
+  )+
+  geom_col()+
+  facet_grid(.~doc_id, scales = "free_x")+
+  geom_text_repel(
+    data = label_df,
+    aes(
+      x = chapter,
+      y = val,
+      label = text
+    ),
+    arrow = arrow(length = unit(0.25, "inches")),
+    size = 2
+  )+
+  scale_fill_few()+
+  theme_fivethirtyeight()+
+  theme(axis.text.x = element_blank())+
+  labs(x = "Chapter", y =  "Aggregate Sentiment")+
+  ggtitle("Descent into sadness: Sentiment in Harry Potter")+
+  guides(fill=FALSE)
+
+```
+
+But is there something deeper lurking here?
+
+These books are a continuous narrative. Should we simply look at these books as one as well?
+
+```{r onecol}
+library(ggrepel)
+library(forcats)
+sent_graph_df <- 
+  sentiment_scores %>% 
+  arrange(doc_id, chapter) %>%
+  ungroup() %>% 
+  mutate(index = row_number()) %>% 
+  mutate(
+    act = case_when(
+      index <= 87  ~ "Act 1",
+      index <= 158 ~ "Act 2",
+      TRUE ~ "Act 3"
+    )  
+    ) 
+sent_graph_df %>%
+  ungroup() %>% 
+  ggplot(
+    aes( 
+      x = index,
+      y = val,
+      fill = act
+    )
+  )+
+  geom_col()+
+  geom_smooth(
+    method = "loess"
+  )+
+  scale_fill_few()+
+  annotate("text", label = "Rising tension", x = 34, y = 200, size =3 )+
+  annotate("text", label = "Voldemort's Return", x = 90, y= -250, size = 3)+
+  annotate("text", label = "Dumbledores's death", x = 160, y= -250, size = 3)+
+  annotate("text", label = "Climax", x = 194, y= 25, size = 3)+
+  theme_fivethirtyeight()+
+  theme(axis.text.x = element_blank())+
+  labs(x = "Chapter", y =  "Aggregate Sentiment")+
+  ggtitle("Descent into sadness: Sentiment in Harry Potter")+
+  guides(fill=FALSE)
+```
+
+If you look at the books as a continuous whole, it hews really tightly to three-act structure. We've got midpoints, rising action, even really nice act breaks.
+
+## What can we say about all this?
+
+Now that we have done all our analysis, what can we feasibly say about how the text of Harry Potter changes and grows with its readers, if at all?
+
+-   Later books have deeper and more extended valleys of negative sentiment, usually when the book is processing some traumatic event: Dumbledore's death and Sirius Black's death are good examples of this, not to mention Harry's own ruminations as he walks into the forest.
+
+<!-- -->
+
+-   As the texts themselves lengthen, Rowling seems to have lengthened her paragraphs, trusting readers to follow both longer descriptions as well as more nuanced and layered mysteries in the later books.
+
+Does this align with our own progression from tween to young adult? One hypothesis could be that we simply wish even our fantasy worlds to reflect our maturing sensibilities about the world - and the inherent darkness we encounter as part of growing up. Another hypothesis could be that we need higher and more real stakes to keep the story moving forward and holding our attention.
+
+Or, it could be that Rowling improved as a writer and delved deeper into the world she had created, fleshing it out and polishing it just as we improved as readers and sought out deeper topics and weightier things. Maybe we, as readers, were just ready for the discussion of mortality and sacrifice, and for the natural progression of a story in which we were already invested.
+
+*Packages used to create this:*
+
+`tidytext`\|`text2vec`\|`readtext`\|`scales`\|`ggthemes`\|`stats`\|`ggrepel`\|`tidyverse`\|`quanteda`\|`lintr`
+
+
