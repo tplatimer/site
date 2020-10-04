@@ -14,11 +14,9 @@ linktitle: ''
 type: post
 ---
 
-<img src="/blog/2020-10-01-while-you-re-here_files/PL_headshot.jpg" alt="" width="40%"/>
-
 ## If you're here, you might want to know who is doing the talking.
 
-The answer is me: Powell Latimer.
+The answer is me: Powell Latimer. I'm currently the Analytics Manager at [Modea](https://www.modea.com/), a digital consultancy based in Blacksburg, Virginia. I've been working in digital analytics and data science since 2016.
 
 First, I must make a confession: I claim no special credentials to be an expert in data analysis and data science. I have, of all things, a journalism and mass communications degree. Most of my statistical knowledge comes from online classes at Coursera (We thank the true queen Mine Cetinkaya-Rundel and her wonderful Coursera classes with Duke), independently purchased textbooks and so many internet guides and research. That information has been tested by repeated, painful, real-world failures and successes.
 
@@ -28,4 +26,6 @@ What I do have, however, is years of experience doing two things: trying to get 
 
 I also have a lot of questions, and a lot of curiosity.
 
-So I'm going to take some time here to explore those areas, and if you want to come along for the ride, you're welcome! You can contact me on social media or via the site's contact form. If you want to work with me or my company, we can talk about that as well!
+So I'm going to take some time here to explore things that are interesting to me, and hopefully some helpful and useful tips for R, Web Analytics, and data analysis in general. 
+
+You can contact me on social media or via the site's contact form. If you want to work with me or my company, we can talk about that as well!
